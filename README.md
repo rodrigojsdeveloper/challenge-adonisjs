@@ -49,7 +49,9 @@ API RESTful desenvolvida em Node.js com AdonisJS para gestão escolar. Permite c
    ```
 
 4. **Acesse a API**
-   - Por padrão, disponível em `http://localhost:3333`
+   ```bash
+   http://localhost:3333
+   ```
 
 ### **Importante**
 
