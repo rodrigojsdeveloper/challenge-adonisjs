@@ -5,9 +5,10 @@ import { BadRequestException } from '../exceptions/badRequest.js'
 import { NotFoundException } from '../exceptions/notFound.js'
 import { UnauthorizedException } from '../exceptions/unauthorized.js'
 import { UnprocessableEntityException } from '../exceptions/unprocessableEntity.js'
+import { IClassroom } from '../interfaces/index.js'
 
 export class ClassroomService {
-  async create(classroomData: Record<string, any>) {
+  async create(classroomData: IClassroom) {
     const { roomNumber, capacity, isAvailable, teacherId } = classroomData;
 
     if (!roomNumber || !capacity || !isAvailable || !teacherId) {
@@ -41,7 +42,7 @@ export class ClassroomService {
     return classroom;
   }
 
-  async update(id: string, updateData: Record<string, any>, teacherId: string) {
+  async update(id: string, updateData: Partial<IClassroom>, teacherId: string) {
     const classroom = await Classroom.find(id);
 
     if (!classroom) {

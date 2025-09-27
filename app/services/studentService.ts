@@ -1,9 +1,10 @@
 import Student from '../models/student.js'
 import { BadRequestException } from '../exceptions/badRequest.js'
 import { NotFoundException } from '../exceptions/notFound.js'
+import { IStudent } from '../interfaces/index.js'
 
 export class StudentService {
-  public async create(studentData: Record<string, any>) {
+  public async create(studentData: IStudent) {
     const { name, email, registration, birthDate } = studentData
 
     if (!name || !email || !registration || !birthDate) {
@@ -46,7 +47,7 @@ export class StudentService {
     }
   }
 
-  async update(id: string, updateData: Record<string, any>) {
+  async update(id: string, updateData: Partial<IStudent>) {
     const student = await Student.find(id)
 
     if (!student) {

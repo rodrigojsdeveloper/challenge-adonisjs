@@ -2,9 +2,10 @@ import Teacher from '../models/teacher.js'
 import { BadRequestException } from '../exceptions/badRequest.js'
 import { NotFoundException } from '../exceptions/notFound.js'
 import { UnprocessableEntityException } from '../exceptions/unprocessableEntity.js'
+import { ITeacher } from '../interfaces/index.js';
 
 export class TeacherService {
-  async create(teacherData: Record<string, any>) {
+  async create(teacherData: ITeacher) {
     const { name, email, registration, birthDate } = teacherData;
 
     if (!name || !email || !registration || !birthDate) {
@@ -26,7 +27,7 @@ export class TeacherService {
     return teacher;
   }
 
-  async update(id: string, updateData: Record<string, any>) {
+  async update(id: string, updateData: Partial<ITeacher>) {
     const teacher = await Teacher.find(id);
 
     if (!teacher) {
