@@ -1,3 +1,6 @@
+import { BadRequestException } from 'App/exceptions/bad_request.js'
+import { NotFoundException } from 'App/exceptions/not_found.js'
+
 export class StudentService {
   constructor(studentRepository) {
     this.studentRepository = studentRepository;
@@ -7,7 +10,7 @@ export class StudentService {
     const { name, email, registration, birthDate } = studentData;
 
     if (!name || !email || !registration || !birthDate) {
-      throw new Error('Missing required fields');
+      throw new BadRequestException('Missing required fields');
     }
 
     const student = await this.studentRepository.create(studentData);
@@ -19,7 +22,7 @@ export class StudentService {
     const student = await this.studentRepository.find(id);
 
     if (!student) {
-      throw new Error('Student not found');
+      throw new NotFoundException('Student not found');
     }
 
     return student;
@@ -31,7 +34,7 @@ export class StudentService {
     });
 
     if (!student) {
-      throw new Error('Student not found');
+      throw new NotFoundException('Student not found');
     }
 
     return {
@@ -47,7 +50,7 @@ export class StudentService {
     const student = await this.studentRepository.find(id);
 
     if (!student) {
-      throw new Error('Student not found');
+      throw new NotFoundException('Student not found');
     }
 
     const updateStudent = await this.studentRepository.update(student.id, updateData);
@@ -59,7 +62,7 @@ export class StudentService {
     const student = await this.studentRepository.find(id);
 
     if (!student) {
-      throw new Error('Student not found');
+      throw new NotFoundException('Student not found');
     }
 
     await this.studentRepository.delete(student.id);

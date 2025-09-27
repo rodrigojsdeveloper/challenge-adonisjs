@@ -1,3 +1,7 @@
+import { BadRequestException } from 'App/exceptions/bad_request.js'
+import { NotFoundException } from 'App/exceptions/not_found.js'
+import { UnprocessableEntityException } from 'App/exceptions/unprocessable_entity.js'
+
 export class TeacherService {
   constructor(teacherRepository, classroomRepository) {
     this.teacherRepository = teacherRepository;
@@ -8,7 +12,7 @@ export class TeacherService {
     const { name, email, registration, birthDate } = teacherData;
 
     if (!name || !email || !registration || !birthDate) {
-      throw new Error('Missing required fields');
+      throw new BadRequestException('Missing required fields');
     }
 
     const teacher = await this.teacherRepository.create(teacherData);
@@ -20,7 +24,7 @@ export class TeacherService {
     const teacher = await this.teacherRepository.find(id);
 
     if (!teacher) {
-      throw new Error('Teacher not found');
+      throw new NotFoundException('Teacher not found');
     }
 
     return teacher;
@@ -30,7 +34,7 @@ export class TeacherService {
     const teacher = await this.teacherRepository.find(id);
 
     if (!teacher) {
-      throw new Error('Teacher not found');
+      throw new NotFoundException('Teacher not found');
     }
 
     const updateTeacher = await this.teacherRepository.update(teacher.id, updateData);
@@ -42,11 +46,11 @@ export class TeacherService {
     const teacher = await this.teacherRepository.find(id);
 
     if (!teacher) {
-      throw new Error('Teacher not found');
+      throw new NotFoundException('Teacher not found');
     }
 
     if (teacher.classrooms && teacher.classrooms.length > 0) {
-      throw new BusinessRuleError(
+      throw new UnprocessableEntityException(
         'Cannot delete teacher with existing classrooms. Please delete all classrooms first.'
       );
     }

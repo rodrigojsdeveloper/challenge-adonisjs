@@ -1,28 +1,30 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { BadRequestException } from './bad_request.js'
+import { UnauthorizedException } from './unauthorized.js'
+import { NotFoundException } from './not_found.js'
+import { UnprocessableEntityException } from './unprocessable_entity.js'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
-  /**
-   * In debug mode, the exception handler will display verbose errors
-   * with pretty printed stack traces.
-   */
   protected debug = !app.inProduction
 
-  /**
-   * The method is used for handling errors and returning
-   * response to the client
-   */
   async handle(error: unknown, ctx: HttpContext) {
-    return super.handle(error, ctx)
-  }
+    if (error instanceof BadRequestException) {
+      return ctx.response.status(400).send({ error: error.message })
+    }
 
-  /**
-   * The method is used to report error to the logging service or
-   * the third party error monitoring service.
-   *
-   * @note You should not attempt to send a response from this method.
-   */
-  async report(error: unknown, ctx: HttpContext) {
-    return super.report(error, ctx)
+    if (error instanceof UnauthorizedException) {
+      return ctx.response.status(403).send({ error: error.message })
+    }
+
+    if (error instanceof NotFoundException) {
+      return ctx.response.status(404).send({ error: error.message })
+    }
+
+    if (error instanceof UnprocessableEntityException) {
+      return ctx.response.status(422).send({ error: error.message })
+    }
+
+    return super.handle(error, ctx)
   }
 }
