@@ -1,43 +1,38 @@
-import { BadRequestException } from 'App/exceptions/bad_request.js'
-import { NotFoundException } from 'App/exceptions/not_found.js'
-import { UnauthorizedException } from 'App/exceptions/unauthorized.js'
-import { UnprocessableEntityException } from 'App/exceptions/unprocessable_entity.js'
+import Student from '../models/student.js'
+import Teacher from '../models/teacher.js'
+import Classroom from '../models/classroom.js'
+import { BadRequestException } from '../exceptions/badRequest.js'
+import { NotFoundException } from '../exceptions/notFound.js'
+import { UnauthorizedException } from '../exceptions/unauthorized.js'
+import { UnprocessableEntityException } from '../exceptions/unprocessableEntity.js'
 
 export class ClassroomService {
-  constructor(classroomRepository, teacherRepository, studentRepository) {
-    this.classroomRepository = classroomRepository;
-    this.teacherRepository = teacherRepository;
-    this.studentRepository = studentRepository;
-  }
-
-  async create(classroomData) {
+  async create(classroomData: Record<string, any>) {
     const { roomNumber, capacity, isAvailable, teacherId } = classroomData;
 
     if (!roomNumber || !capacity || !isAvailable || !teacherId) {
       throw new BadRequestException('Missing required fields');
     }
 
-    const teacher = await this.teacherRepository.find(teacherId);
+    const teacher = await Teacher.find(teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
     }
 
-    const existingClassroom = await this.classroomRepository.findByRoomNumber(
-      classroomData.roomNumber
-    );
+    const existingClassroom = await Classroom.query().where('roomNumber', roomNumber).first()
 
     if (existingClassroom) {
       throw new UnprocessableEntityException('A classroom with this room number already exists');
     }
 
-    const classroom = await this.classroomRepository.create(classroomData);
+    const classroom = await Classroom.create(classroomData);
 
     return classroom;
   }
 
-  async findById(id) {
-    const classroom = await this.classroomRepository.find(id);
+  async findById(id: string) {
+    const classroom = await Classroom.find(id);
 
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
@@ -46,44 +41,41 @@ export class ClassroomService {
     return classroom;
   }
 
-  async update(id, updateData, teacherId) {
-    const classroom = await this.classroomRepository.find(id);
+  async update(id: string, updateData: Record<string, any>, teacherId: string) {
+    const classroom = await Classroom.find(id);
 
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
     }
 
-    const teacher = await this.teacherRepository.find(teacherId);
+    const teacher = await Teacher.find(teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
     }
 
     if (updateData.roomNumber && updateData.roomNumber !== classroom.roomNumber) {
-      const existingClassroom = await this.classroomRepository.findByRoomNumber(
-        updateData.roomNumber
-      );
+      const existingClassroom = await Classroom.query().where('roomNumber', updateData.roomNumber).first()
 
       if (existingClassroom) {
         throw new UnprocessableEntityException('A classroom with this room number already exists');
       }
     }
 
-    const updateClassroom = await this.classroomRepository.update(classroom.id, updateData);
+    classroom.merge(updateData)
+    await classroom.save()
 
-    return updateClassroom;
+    return classroom;
   }
 
-  async delete(classroomId, teacherId) {
-    const classroom = await this.classroomRepository.find(classroomId, {
-      preload: ['students']
-    });
+  async delete(classroomId: string, teacherId: string) {
+    const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
     }
 
-    const teacher = await this.teacherRepository.find(teacherId);
+    const teacher = await Teacher.find(teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
@@ -99,7 +91,7 @@ export class ClassroomService {
       );
     }
 
-    await this.classroomRepository.delete(classroom.id);
+    await classroom.delete();
 
     return {
       success: true,
@@ -107,16 +99,14 @@ export class ClassroomService {
     };
   }
 
-  async getStudents(classroomId, teacherId) {
-    const classroom = await this.classroomRepository.find(classroomId, {
-      preload: ['students']
-    });
+  async getStudents(classroomId: string, teacherId: string) {
+    const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
     }
 
-    const teacher = await this.teacherRepository.find(teacherId);
+    const teacher = await Teacher.find(teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
@@ -129,16 +119,14 @@ export class ClassroomService {
     return classroom.students;
   }
 
-  async addStudent(classroomId, studentId, teacherId) {
-    const classroom = await this.classroomRepository.find(classroomId, {
-      preload: ['students']
-    });
+  async addStudent(classroomId: string, studentId: string, teacherId: string) {
+    const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
     }
 
-    const teacher = await this.teacherRepository.find(teacherId);
+    const teacher = await Teacher.find(teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
@@ -148,7 +136,7 @@ export class ClassroomService {
       throw new UnauthorizedException('Teacher cannot add students to a classroom they do not own');
     }
 
-    const student = await this.studentRepository.find(studentId);
+    const student = await Student.find(studentId);
 
     if (!student) {
       throw new NotFoundException('Student not found');
@@ -176,16 +164,14 @@ export class ClassroomService {
     };
   }
 
-  async deleteStudent(classroomId, studentId, teacherId) {
-    const classroom = await this.classroomRepository.find(classroomId, {
-      preload: ['students']
-    });
+  async deleteStudent(classroomId: string, studentId: string, teacherId: string) {
+    const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
       throw new NotFoundException('Classroom not found');
     }
 
-    const teacher = await this.teacherRepository.find(teacherId);
+    const teacher = await Teacher.find(teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
@@ -195,7 +181,7 @@ export class ClassroomService {
       throw new UnauthorizedException('Teacher cannot remove students to a classroom they do not own');
     }
 
-    const student = await this.classroomRepository.find(studentId);
+    const student = await Student.find(studentId);
 
     if (!student) {
       throw new NotFoundException('Student not found');

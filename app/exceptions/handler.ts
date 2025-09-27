@@ -1,9 +1,9 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
-import { BadRequestException } from './bad_request.js'
+import { BadRequestException } from './badRequest.js'
 import { UnauthorizedException } from './unauthorized.js'
-import { NotFoundException } from './not_found.js'
-import { UnprocessableEntityException } from './unprocessable_entity.js'
+import { NotFoundException } from './notFound.js'
+import { UnprocessableEntityException } from './unprocessableEntity.js'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   protected debug = !app.inProduction
