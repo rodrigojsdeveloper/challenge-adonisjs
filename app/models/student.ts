@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, belongsTo } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
 import { v4 as uuidv4 } from 'uuid'
 import Classroom from './classroom.js'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 
 export default class Student extends BaseModel {
   @column({ isPrimary: true })
@@ -31,8 +31,12 @@ export default class Student extends BaseModel {
     student.id = uuidv4()
   }
 
-  @belongsTo(() => Classroom, {
-    foreignKey: 'classroomId',
+  @manyToMany(() => Classroom, {
+    pivotTable: 'classroom_student',
+    localKey: 'id',
+    relatedKey: 'id',
+    pivotForeignKey: 'student_id',
+    pivotRelatedForeignKey: 'classroom_id',
   })
-  public classroom!: BelongsTo<typeof Classroom>
+  public classrooms!: ManyToMany<typeof Classroom>
 }
