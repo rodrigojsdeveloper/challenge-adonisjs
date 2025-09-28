@@ -1,26 +1,26 @@
-import Teacher from '../models/teacher.js'
-import { BadRequestException } from '../exceptions/badRequest.js'
-import { NotFoundException } from '../exceptions/notFound.js'
-import { UnprocessableEntityException } from '../exceptions/unprocessableEntity.js'
-import { ITeacher } from '../interfaces/index.js';
-import { isValidUUID } from '../utils/index.js';
+import Teacher from "../models/teacher.js";
+import { BadRequestException } from "../exceptions/badRequest.js";
+import { NotFoundException } from "../exceptions/notFound.js";
+import { UnprocessableEntityException } from "../exceptions/unprocessableEntity.js";
+import { TeacherProps } from "../interfaces/index.js";
+import { isValidUUID } from "../utils/index.js";
 
 export class TeacherService {
-  async create(teacherData: ITeacher) {
-    const requiredFields = ['name', 'email', 'registration', 'birthDate'] as const
+  async create(teacherData: TeacherProps) {
+    const requiredFields = ["name", "email", "registration", "birthDate"] as const;
 
     const missingFields = requiredFields.filter(
       (field) => teacherData[field] === undefined || teacherData[field] === null
-    )
+    );
 
     if (missingFields.length > 0) {
-      throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`)
+      throw new BadRequestException(`Missing required fields: ${missingFields.join(", ")}`);
     }
 
-    const existingTeacher = await Teacher.query().where('email', teacherData.email).first()
+    const existingTeacher = await Teacher.query().where("email", teacherData.email).first();
 
     if (existingTeacher) {
-      throw new UnprocessableEntityException('A teacher with this email already exists')
+      throw new UnprocessableEntityException("A teacher with this email already exists");
     }
 
     const createTeacher = await Teacher.create(teacherData);
@@ -29,28 +29,28 @@ export class TeacherService {
   }
 
   async findById(id: string) {
-    if(!isValidUUID(id)) {
-      throw new NotFoundException('Teacher not found');
+    if (!isValidUUID(id)) {
+      throw new NotFoundException("Teacher not found");
     }
 
     const teacher = await Teacher.find(id);
 
     if (!teacher) {
-      throw new NotFoundException('Teacher not found');
+      throw new NotFoundException("Teacher not found");
     }
 
     return teacher;
   }
 
-  async update(id: string, updateData: Partial<ITeacher>) {
-    if(!isValidUUID(id)) {
-      throw new NotFoundException('Teacher not found');
+  async update(id: string, updateData: Partial<TeacherProps>) {
+    if (!isValidUUID(id)) {
+      throw new NotFoundException("Teacher not found");
     }
 
     const teacher = await Teacher.find(id);
 
     if (!teacher) {
-      throw new NotFoundException('Teacher not found');
+      throw new NotFoundException("Teacher not found");
     }
 
     teacher.merge(updateData);
@@ -60,19 +60,19 @@ export class TeacherService {
   }
 
   async delete(id: string) {
-    if(!isValidUUID(id)) {
-      throw new NotFoundException('Teacher not found');
+    if (!isValidUUID(id)) {
+      throw new NotFoundException("Teacher not found");
     }
 
     const teacher = await Teacher.find(id);
 
     if (!teacher) {
-      throw new NotFoundException('Teacher not found');
+      throw new NotFoundException("Teacher not found");
     }
 
     if (teacher.classrooms && teacher.classrooms.length > 0) {
       throw new UnprocessableEntityException(
-        'Cannot delete teacher with existing classrooms. Please delete all classrooms first.'
+        "Cannot delete teacher with existing classrooms. Please delete all classrooms first."
       );
     }
 
@@ -80,7 +80,7 @@ export class TeacherService {
 
     return {
       success: true,
-      message: 'Teacher deleted successfully'
+      message: "Teacher deleted successfully",
     };
   }
 }

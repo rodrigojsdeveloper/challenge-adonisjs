@@ -1,42 +1,42 @@
-import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
-import { v4 as uuidv4 } from 'uuid'
-import Classroom from './classroom.js'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import { DateTime } from "luxon";
+import { BaseModel, beforeCreate, column, manyToMany } from "@adonisjs/lucid/orm";
+import { v4 as uuidv4 } from "uuid";
+import Classroom from "./classroom.js";
+import type { ManyToMany } from "@adonisjs/lucid/types/relations";
 
 export default class Student extends BaseModel {
   @column({ isPrimary: true })
-  declare id: string
+  declare id: string;
 
   @column()
-  declare name: string
+  declare name: string;
 
   @column()
-  declare email: string
+  declare email: string;
 
   @column()
-  declare registration: string
+  declare registration: string;
 
   @column()
-  declare birthDate: DateTime
+  declare birthDate: DateTime;
 
   @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+  declare createdAt: DateTime;
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
+  declare updatedAt: DateTime | null;
 
   @beforeCreate()
   public static assignUuid(student: Student) {
-    student.id = uuidv4()
+    student.id = uuidv4();
   }
 
   @manyToMany(() => Classroom, {
-    pivotTable: 'classroom_student',
-    localKey: 'id',
-    relatedKey: 'id',
-    pivotForeignKey: 'student_id',
-    pivotRelatedForeignKey: 'classroom_id',
+    pivotTable: "classroom_student",
+    localKey: "id",
+    relatedKey: "id",
+    pivotForeignKey: "student_id",
+    pivotRelatedForeignKey: "classroom_id",
   })
-  public classrooms!: ManyToMany<typeof Classroom>
+  public classrooms!: ManyToMany<typeof Classroom>;
 }

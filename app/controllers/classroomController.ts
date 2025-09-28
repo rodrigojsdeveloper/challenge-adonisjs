@@ -1,70 +1,69 @@
-import type { HttpContext } from '@adonisjs/core/http'
-import { ClassroomService } from '../services/classroomService.js'
+import type { HttpContext } from "@adonisjs/core/http";
+import { ClassroomService } from "../services/classroomService.js";
 
-const classroomService = new ClassroomService()
+const classroomService = new ClassroomService();
 
 export class ClassroomController {
   async create({ request, response }: HttpContext) {
-    const classroomData = request.only(['roomNumber', 'capacity', 'isAvailable'])
-    const teacherId = request.header('x-teacher-id')!
+    const classroomData = request.only(["roomNumber", "capacity", "isAvailable"]);
+    const teacherId = request.header("x-teacher-id")!;
 
-    const classroom = await classroomService.create({ ...classroomData, teacherId })
+    const classroom = await classroomService.create({ ...classroomData, teacherId });
 
-    return response.status(201).json(classroom)
+    return response.status(201).json(classroom);
   }
 
   async findById({ request, response }: HttpContext) {
-    const { id } = request.params()
+    const { id } = request.params();
 
-    const classroom = await classroomService.findById(id)
+    const classroom = await classroomService.findById(id);
 
-    return response.json(classroom)
+    return response.json(classroom);
   }
 
   async update({ request, response }: HttpContext) {
-    const { id } = request.params()
-    const classroomData = request.only(['roomNumber', 'capacity', 'isAvailable'])
-    const teacherId = request.header('x-teacher-id')!
+    const { id } = request.params();
+    const classroomData = request.only(["roomNumber", "capacity", "isAvailable"]);
+    const teacherId = request.header("x-teacher-id")!;
 
-    const updateClassroom = await classroomService.update(id, classroomData, teacherId)
+    const updateClassroom = await classroomService.update(id, classroomData, teacherId);
 
-    return response.json(updateClassroom)
+    return response.json(updateClassroom);
   }
 
   async delete({ request, response }: HttpContext) {
-    const { id } = request.params()
-    const teacherId = request.header('x-teacher-id')!
+    const { id } = request.params();
+    const teacherId = request.header("x-teacher-id")!;
 
-    await classroomService.delete(id, teacherId)
+    await classroomService.delete(id, teacherId);
 
-    return response.noContent()
+    return response.noContent();
   }
 
-
   async getStudents({ request, response }: HttpContext) {
-    const { classroomId } = request.params()
-    const teacherId = request.header('x-teacher-id')!
+    const { classroomId } = request.params();
+    const teacherId = request.header("x-teacher-id")!;
 
-    const students = await classroomService.getStudents(classroomId, teacherId)
+    const students = await classroomService.getStudents(classroomId, teacherId);
 
-    return response.json(students)
+    return response.json(students);
   }
 
   async addStudent({ request, response }: HttpContext) {
-    const { classroomId, studentId } = request.params()
-    const teacherId = request.header('x-teacher-id')!
+    const { classroomId, studentId } = request.params();
+    const teacherId = request.header("x-teacher-id")!;
 
-    const result = await classroomService.addStudent(classroomId, studentId, teacherId)
+    const result = await classroomService.addStudent(classroomId, studentId, teacherId);
 
-    return response.json(result)
+    return response.json(result);
   }
 
   async deleteStudent({ request, response }: HttpContext) {
-    const { classroomId, studentId } = request.params()
-    const teacherId = request.header('x-teacher-id')!
+    const { classroomId, studentId } = request.params();
+    const teacherId = request.header("x-teacher-id")!;
 
-    const result = await classroomService.deleteStudent(classroomId, studentId, teacherId)
+    const result = await classroomService.deleteStudent(classroomId, studentId, teacherId);
 
-    return response.json(result)
+    return response.json(result);
   }
 }

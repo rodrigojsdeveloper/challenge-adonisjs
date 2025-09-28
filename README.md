@@ -94,5 +94,5 @@ Ao rodar `npm run dev`, o projeto irá:
 - **Alocação de aluno**:  
   - Um aluno não pode ser alocado mais de uma vez na mesma sala.  
   - A capacidade da sala não pode ser excedida.  
-  - Apenas o professor criador pode alocar ou remover alunos.  
+  - Apenas o professor criador da sala pode alocar ou remover alunos.  
 - **Consulta de salas do aluno**: deve retornar o nome do aluno, o nome do professor e o número da sala.
