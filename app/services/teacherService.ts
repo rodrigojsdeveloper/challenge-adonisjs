@@ -4,11 +4,25 @@ import { NotFoundException } from "../exceptions/notFound.js";
 import { UnprocessableEntityException } from "../exceptions/unprocessableEntity.js";
 import { TeacherProps } from "../interfaces/index.js";
 import { isValidUUID } from "../utils/index.js";
+import { BaseModel } from "@adonisjs/lucid/orm";
 
 export class TeacherService {
+  private validateUUID(id: string, entityName: string) {
+    if (!isValidUUID(id)) {
+      throw new NotFoundException(`${entityName} not found`);
+    }
+  }
+
+  private async findEntity<T extends typeof BaseModel>(Model: T, id: string, entityName: string) {
+    const entity = await Model.find(id);
+    if (!entity) {
+      throw new NotFoundException(`${entityName} not found`);
+    }
+    return entity;
+  }
+
   async create(teacherData: TeacherProps) {
     const requiredFields = ["name", "email", "registration", "birthDate"] as const;
-
     const missingFields = requiredFields.filter(
       (field) => teacherData[field] === undefined || teacherData[field] === null
     );
@@ -18,41 +32,24 @@ export class TeacherService {
     }
 
     const existingTeacher = await Teacher.query().where("email", teacherData.email).first();
-
     if (existingTeacher) {
       throw new UnprocessableEntityException("A teacher with this email already exists");
     }
 
     const createTeacher = await Teacher.create(teacherData);
-
     return createTeacher;
   }
 
   async findById(id: string) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Teacher not found");
-    }
-
-    const teacher = await Teacher.find(id);
-
-    if (!teacher) {
-      throw new NotFoundException("Teacher not found");
-    }
-
+    this.validateUUID(id, "Teacher");
+    const teacher = await this.findEntity(Teacher, id, "Teacher");
     return teacher;
   }
 
   async update(id: string, updateData: Partial<TeacherProps>) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Teacher not found");
-    }
+    this.validateUUID(id, "Teacher");
 
-    const teacher = await Teacher.find(id);
-
-    if (!teacher) {
-      throw new NotFoundException("Teacher not found");
-    }
-
+    const teacher = await this.findEntity(Teacher, id, "Teacher");
     teacher.merge(updateData);
     await teacher.save();
 
@@ -60,27 +57,8 @@ export class TeacherService {
   }
 
   async delete(id: string) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Teacher not found");
-    }
-
-    const teacher = await Teacher.find(id);
-
-    if (!teacher) {
-      throw new NotFoundException("Teacher not found");
-    }
-
-    if (teacher.classrooms && teacher.classrooms.length > 0) {
-      throw new UnprocessableEntityException(
-        "Cannot delete teacher with existing classrooms. Please delete all classrooms first."
-      );
-    }
-
+    this.validateUUID(id, "Teacher");
+    const teacher = await this.findEntity(Teacher, id, "Teacher");
     await teacher.delete();
-
-    return {
-      success: true,
-      message: "Teacher deleted successfully",
-    };
   }
 }

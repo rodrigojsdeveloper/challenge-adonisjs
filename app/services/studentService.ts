@@ -4,11 +4,25 @@ import { NotFoundException } from "../exceptions/notFound.js";
 import { StudentProps } from "../interfaces/index.js";
 import { isValidUUID } from "../utils/index.js";
 import { UnprocessableEntityException } from "#exceptions/unprocessableEntity";
+import { BaseModel } from "@adonisjs/lucid/orm";
 
 export class StudentService {
+  private validateUUID(id: string, entityName: string) {
+    if (!isValidUUID(id)) {
+      throw new NotFoundException(`${entityName} not found`);
+    }
+  }
+
+  private async findEntity<T extends typeof BaseModel>(Model: T, id: string, entityName: string) {
+    const entity = await Model.find(id);
+    if (!entity) {
+      throw new NotFoundException(`${entityName} not found`);
+    }
+    return entity;
+  }
+
   async create(studentData: StudentProps) {
     const requiredFields = ["name", "email", "registration", "birthDate"] as const;
-
     const missingFields = requiredFields.filter(
       (field) => studentData[field] === undefined || studentData[field] === null
     );
@@ -18,34 +32,22 @@ export class StudentService {
     }
 
     const existingStudent = await Student.query().where("email", studentData.email).first();
-
     if (existingStudent) {
       throw new UnprocessableEntityException("A student with this email already exists");
     }
 
     const createStudent = await Student.create(studentData);
-
     return createStudent;
   }
 
   async findById(id: string) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Student not found");
-    }
-
-    const student = await Student.find(id);
-
-    if (!student) {
-      throw new NotFoundException("Student not found");
-    }
-
+    this.validateUUID(id, "Student");
+    const student = await this.findEntity(Student, id, "Student");
     return student;
   }
 
   async getClassrooms(id: string) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Student not found");
-    }
+    this.validateUUID(id, "Student");
 
     const student = await Student.query()
       .where("id", id)
@@ -53,7 +55,6 @@ export class StudentService {
         classroomsQuery.preload("teacher");
       })
       .first();
-
     if (!student) {
       throw new NotFoundException("Student not found");
     }
@@ -68,16 +69,9 @@ export class StudentService {
   }
 
   async update(id: string, updateData: Partial<StudentProps>) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Student not found");
-    }
+    this.validateUUID(id, "Student");
 
-    const student = await Student.find(id);
-
-    if (!student) {
-      throw new NotFoundException("Student not found");
-    }
-
+    const student = await this.findEntity(Student, id, "Student");
     student.merge(updateData);
     await student.save();
 
@@ -85,21 +79,8 @@ export class StudentService {
   }
 
   async delete(id: string) {
-    if (!isValidUUID(id)) {
-      throw new NotFoundException("Student not found");
-    }
-
-    const student = await Student.find(id);
-
-    if (!student) {
-      throw new NotFoundException("Student not found");
-    }
-
+    this.validateUUID(id, "Student");
+    const student = await this.findEntity(Student, id, "Student");
     await student.delete();
-
-    return {
-      success: true,
-      message: "Student deleted successfully",
-    };
   }
 }

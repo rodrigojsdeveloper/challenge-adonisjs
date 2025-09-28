@@ -8,7 +8,6 @@ export class StudentController {
     const studentData = request.only(["name", "email", "registration", "birthDate"]);
 
     const student = await studentService.create(studentData);
-
     return response.status(201).json(student);
   }
 
@@ -16,7 +15,6 @@ export class StudentController {
     const { id } = request.params();
 
     const student = await studentService.findById(id);
-
     return response.json(student);
   }
 
@@ -24,7 +22,6 @@ export class StudentController {
     const { studentId } = request.params();
 
     const classrooms = await studentService.getClassrooms(studentId);
-
     return response.json(classrooms);
   }
 
@@ -33,7 +30,6 @@ export class StudentController {
     const studentData = request.only(["name", "email", "registration", "birthDate"]);
 
     const updateStudent = await studentService.update(id, studentData);
-
     return response.json(updateStudent);
   }
 
@@ -41,7 +37,6 @@ export class StudentController {
     const { id } = request.params();
 
     await studentService.delete(id);
-
     return response.noContent();
   }
 }

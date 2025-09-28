@@ -8,7 +8,6 @@ export class TeacherController {
     const teacherData = request.only(["name", "email", "registration", "birthDate"]);
 
     const teacher = await teacherService.create(teacherData);
-
     return response.status(201).json(teacher);
   }
 
@@ -16,7 +15,6 @@ export class TeacherController {
     const { id } = request.params();
 
     const teacher = await teacherService.findById(id);
-
     return response.json(teacher);
   }
 
@@ -25,7 +23,6 @@ export class TeacherController {
     const teacherData = request.only(["name", "email", "registration", "birthDate"]);
 
     const updateTeacher = await teacherService.update(id, teacherData);
-
     return response.json(updateTeacher);
   }
 
@@ -33,7 +30,6 @@ export class TeacherController {
     const { id } = request.params();
 
     await teacherService.delete(id);
-
     return response.noContent();
   }
 }
