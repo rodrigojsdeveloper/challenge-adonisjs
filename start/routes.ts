@@ -1,4 +1,5 @@
 import router from '@adonisjs/core/services/router'
+import { validateXId } from '../app/middleware/validateXIdMiddleware.js'
 
 import { StudentController } from '../app/controllers/studentController.js'
 import { TeacherController } from '../app/controllers/teacherController.js'
@@ -19,10 +20,10 @@ router.put('/teachers/:id', (ctx) => teacherController.update(ctx))
 router.delete('/teachers/:id', (ctx) => teacherController.delete(ctx))
 router.get('/teachers/:id', (ctx) => teacherController.findById(ctx))
 
-router.post('/classrooms', (ctx) => classroomController.create(ctx))
-router.put('/classrooms/:id', (ctx) => classroomController.update(ctx))
-router.delete('/classrooms/:id', (ctx) => classroomController.delete(ctx))
+router.post('/classrooms', (ctx) => classroomController.create(ctx)).use(validateXId)
+router.put('/classrooms/:id', (ctx) => classroomController.update(ctx)).use(validateXId)
+router.delete('/classrooms/:id', (ctx) => classroomController.delete(ctx)).use(validateXId)
 router.get('/classrooms/:id', (ctx) => classroomController.findById(ctx))
-router.post('/classrooms/:classroomId/students/:studentId', (ctx) => classroomController.addStudent(ctx))
-router.delete('/classrooms/:classroomId/students/:studentId', (ctx) => classroomController.deleteStudent(ctx))
-router.get('/classrooms/:classroomId/students', (ctx) => classroomController.getStudents(ctx))
+router.post('/classrooms/:classroomId/students/:studentId', (ctx) => classroomController.addStudent(ctx)).use(validateXId)
+router.delete('/classrooms/:classroomId/students/:studentId', (ctx) => classroomController.deleteStudent(ctx)).use(validateXId)
+router.get('/classrooms/:classroomId/students', (ctx) => classroomController.getStudents(ctx)).use(validateXId)

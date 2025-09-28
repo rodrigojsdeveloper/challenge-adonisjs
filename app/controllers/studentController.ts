@@ -1,11 +1,10 @@
-// Fallback type when '@ioc:Adonis/Core/HttpContext' is not available in the environment
-type HttpContextContract = any
+import type { HttpContext } from '@adonisjs/core/http'
 import { StudentService } from '../services/studentService.js'
 
 const studentService = new StudentService()
 
 export class StudentController {
-  async create({ request, response }: HttpContextContract) {
+  async create({ request, response }: HttpContext) {
     const studentData = request.only(['name', 'email', 'registration', 'birthDate'])
 
     const student = await studentService.create(studentData)
@@ -13,7 +12,7 @@ export class StudentController {
     return response.status(201).json(student)
   }
 
-  async findById({ request, response }: HttpContextContract) {
+  async findById({ request, response }: HttpContext) {
     const { id } = request.params()
 
     const student = await studentService.findById(id)
@@ -21,7 +20,7 @@ export class StudentController {
     return response.json(student)
   }
 
-  async getClassrooms({ request, response }: HttpContextContract) {
+  async getClassrooms({ request, response }: HttpContext) {
     const { studentId } = request.params()
 
     const classrooms = await studentService.getClassrooms(studentId)
@@ -29,7 +28,7 @@ export class StudentController {
     return response.json(classrooms)
   }
 
-  async update({ request, response }: HttpContextContract) {
+  async update({ request, response }: HttpContext) {
     const { id } = request.params()
     const studentData = request.only(['name', 'email', 'registration', 'birthDate'])
 
@@ -38,11 +37,11 @@ export class StudentController {
     return response.json(updateStudent)
   }
 
-  async delete({ request, response }: HttpContextContract) {
+  async delete({ request, response }: HttpContext) {
     const { id } = request.params()
 
     await studentService.delete(id)
 
-    return response.status(204).send()
+    return response.noContent()
   }
 }

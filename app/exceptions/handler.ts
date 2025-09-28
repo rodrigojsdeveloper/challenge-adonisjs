@@ -14,7 +14,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     }
 
     if (error instanceof UnauthorizedException) {
-      return ctx.response.status(403).send({ error: error.message })
+      return ctx.response.status(401).send({ error: error.message })
     }
 
     if (error instanceof NotFoundException) {

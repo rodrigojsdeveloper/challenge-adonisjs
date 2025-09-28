@@ -42,6 +42,10 @@ export class ClassroomService {
   }
 
   async findById(id: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Classroom not found');
+    }
+
     const classroom = await Classroom.find(id);
 
     if (!classroom) {
@@ -52,6 +56,14 @@ export class ClassroomService {
   }
 
   async update(id: string, updateData: Partial<IClassroom>, teacherId: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Classroom not found');
+    }
+
+    if(!isValidUUID(teacherId)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
     const classroom = await Classroom.find(id);
 
     if (!classroom) {
@@ -79,6 +91,14 @@ export class ClassroomService {
   }
 
   async delete(classroomId: string, teacherId: string) {
+    if(!isValidUUID(classroomId)) {
+      throw new NotFoundException('Classroom not found');
+    }
+
+    if(!isValidUUID(teacherId)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
     const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
@@ -110,6 +130,14 @@ export class ClassroomService {
   }
 
   async getStudents(classroomId: string, teacherId: string) {
+    if(!isValidUUID(classroomId)) {
+      throw new NotFoundException('Classroom not found');
+    }
+
+    if(!isValidUUID(teacherId)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
     const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
@@ -130,6 +158,18 @@ export class ClassroomService {
   }
 
   async addStudent(classroomId: string, studentId: string, teacherId: string) {
+    if(!isValidUUID(classroomId)) {
+      throw new NotFoundException('Classroom not found');
+    }
+
+    if(!isValidUUID(teacherId)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
+    if(!isValidUUID(studentId)) {
+      throw new NotFoundException('Student not found');
+    }
+
     const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
@@ -175,6 +215,18 @@ export class ClassroomService {
   }
 
   async deleteStudent(classroomId: string, studentId: string, teacherId: string) {
+    if(!isValidUUID(classroomId)) {
+      throw new NotFoundException('Classroom not found');
+    }
+
+    if(!isValidUUID(teacherId)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
+    if(!isValidUUID(studentId)) {
+      throw new NotFoundException('Student not found');
+    }
+
     const classroom = await Classroom.query().where('id', classroomId).preload('students').first()
 
     if (!classroom) {
@@ -198,8 +250,8 @@ export class ClassroomService {
     }
 
     const isStudentInClassroom = classroom.students.some(s => s.id === student.id)
-    if (isStudentInClassroom) {
-      throw new UnprocessableEntityException('Student already allocated in this classroom');
+    if (!isStudentInClassroom) {
+      throw new NotFoundException('Student does not exist in this classroom');
     }
 
     await classroom.related('students').detach([student.id]);

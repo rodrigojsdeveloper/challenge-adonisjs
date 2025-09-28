@@ -1,5 +1,5 @@
 export class UnauthorizedException extends Error {
-  public status = 403
+  public status = 401
 
   constructor(message: string) {
     super(message)
