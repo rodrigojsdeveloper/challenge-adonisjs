@@ -3,21 +3,36 @@ import { BadRequestException } from '../exceptions/badRequest.js'
 import { NotFoundException } from '../exceptions/notFound.js'
 import { UnprocessableEntityException } from '../exceptions/unprocessableEntity.js'
 import { ITeacher } from '../interfaces/index.js';
+import { isValidUUID } from '../utils/index.js';
 
 export class TeacherService {
   async create(teacherData: ITeacher) {
-    const { name, email, registration, birthDate } = teacherData;
+    const requiredFields = ['name', 'email', 'registration', 'birthDate'] as const
 
-    if (!name || !email || !registration || !birthDate) {
-      throw new BadRequestException('Missing required fields');
+    const missingFields = requiredFields.filter(
+      (field) => teacherData[field] === undefined || teacherData[field] === null
+    )
+
+    if (missingFields.length > 0) {
+      throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`)
     }
 
-    const teacher = await Teacher.create(teacherData);
+    const existingTeacher = await Teacher.query().where('email', teacherData.email).first()
 
-    return teacher;
+    if (existingTeacher) {
+      throw new UnprocessableEntityException('A teacher with this email already exists')
+    }
+
+    const createTeacher = await Teacher.create(teacherData);
+
+    return createTeacher;
   }
 
   async findById(id: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
     const teacher = await Teacher.find(id);
 
     if (!teacher) {
@@ -28,6 +43,10 @@ export class TeacherService {
   }
 
   async update(id: string, updateData: Partial<ITeacher>) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
     const teacher = await Teacher.find(id);
 
     if (!teacher) {
@@ -41,6 +60,10 @@ export class TeacherService {
   }
 
   async delete(id: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
     const teacher = await Teacher.find(id);
 
     if (!teacher) {

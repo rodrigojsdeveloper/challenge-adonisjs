@@ -6,30 +6,39 @@ import { NotFoundException } from '../exceptions/notFound.js'
 import { UnauthorizedException } from '../exceptions/unauthorized.js'
 import { UnprocessableEntityException } from '../exceptions/unprocessableEntity.js'
 import { IClassroom } from '../interfaces/index.js'
+import { isValidUUID } from '../utils/index.js'
 
 export class ClassroomService {
   async create(classroomData: IClassroom) {
-    const { roomNumber, capacity, isAvailable, teacherId } = classroomData;
+    const requiredFields = ['roomNumber', 'capacity', 'isAvailable', 'teacherId'] as const
 
-    if (!roomNumber || !capacity || !isAvailable || !teacherId) {
-      throw new BadRequestException('Missing required fields');
+    const missingFields = requiredFields.filter(
+      (field) => classroomData[field] === undefined || classroomData[field] === null
+    )
+
+    if (missingFields.length > 0) {
+      throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`)
     }
 
-    const teacher = await Teacher.find(teacherId);
+    if(!isValidUUID(classroomData.teacherId)) {
+      throw new NotFoundException('Teacher not found');
+    }
+
+    const teacher = await Teacher.find(classroomData.teacherId);
 
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
     }
 
-    const existingClassroom = await Classroom.query().where('roomNumber', roomNumber).first()
+    const existingClassroom = await Classroom.query().where('roomNumber', classroomData.roomNumber).first()
 
     if (existingClassroom) {
       throw new UnprocessableEntityException('A classroom with this room number already exists');
     }
 
-    const classroom = await Classroom.create(classroomData);
+    const createClassroom = await Classroom.create(classroomData);
 
-    return classroom;
+    return createClassroom;
   }
 
   async findById(id: string) {

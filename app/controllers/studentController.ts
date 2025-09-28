@@ -22,9 +22,9 @@ export class StudentController {
   }
 
   async getClassrooms({ request, response }: HttpContextContract) {
-    const { id } = request.params()
+    const { studentId } = request.params()
 
-    const classrooms = await studentService.getClassrooms(id)
+    const classrooms = await studentService.getClassrooms(studentId)
 
     return response.json(classrooms)
   }

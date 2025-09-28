@@ -2,21 +2,37 @@ import Student from '../models/student.js'
 import { BadRequestException } from '../exceptions/badRequest.js'
 import { NotFoundException } from '../exceptions/notFound.js'
 import { IStudent } from '../interfaces/index.js'
+import { isValidUUID } from '../utils/index.js'
+import { UnprocessableEntityException } from '#exceptions/unprocessableEntity'
 
 export class StudentService {
-  public async create(studentData: IStudent) {
-    const { name, email, registration, birthDate } = studentData
+  async create(studentData: IStudent) {
+    const requiredFields = ['name', 'email', 'registration', 'birthDate'] as const
 
-    if (!name || !email || !registration || !birthDate) {
-      throw new BadRequestException('Missing required fields')
+    const missingFields = requiredFields.filter(
+      (field) => studentData[field] === undefined || studentData[field] === null
+    )
+
+    if (missingFields.length > 0) {
+      throw new BadRequestException(`Missing required fields: ${missingFields.join(', ')}`)
     }
 
-    const student = await Student.create(studentData)
+    const existingStudent = await Student.query().where('email', studentData.email).first()
 
-    return student
+    if (existingStudent) {
+      throw new UnprocessableEntityException('A student with this email already exists')
+    }
+
+    const createStudent = await Student.create(studentData)
+
+    return createStudent
   }
 
   async findById(id: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Student not found');
+    }
+
     const student = await Student.find(id)
 
     if (!student) {
@@ -27,6 +43,10 @@ export class StudentService {
   }
 
   async getClassrooms(id: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Student not found');
+    }
+
     const student = await Student.query()
       .where('id', id)
       .preload('classrooms', (classroomsQuery) => {
@@ -48,6 +68,10 @@ export class StudentService {
   }
 
   async update(id: string, updateData: Partial<IStudent>) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Student not found');
+    }
+
     const student = await Student.find(id)
 
     if (!student) {
@@ -61,6 +85,10 @@ export class StudentService {
   }
 
   async delete(id: string) {
+    if(!isValidUUID(id)) {
+      throw new NotFoundException('Student not found');
+    }
+
     const student = await Student.find(id)
 
     if (!student) {
