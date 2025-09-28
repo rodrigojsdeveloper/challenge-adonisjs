@@ -1,4 +1,6 @@
 import router from "@adonisjs/core/services/router";
+import app from "@adonisjs/core/services/app"
+import { join } from "node:path"
 import { validateXId } from "../app/middleware/validateXIdMiddleware.js";
 
 import { StudentController } from "../app/controllers/studentController.js";
@@ -8,6 +10,10 @@ import { ClassroomController } from "../app/controllers/classroomController.js";
 const studentController = new StudentController();
 const teacherController = new TeacherController();
 const classroomController = new ClassroomController();
+
+router.get("/", async ({ response }) => {
+  return response.download(join(app.publicPath(), "index.html"))
+})
 
 router.post("/students", (ctx) => studentController.create(ctx));
 router.put("/students/:id", (ctx) => studentController.update(ctx));
