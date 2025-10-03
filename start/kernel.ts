@@ -24,7 +24,7 @@ server.errorHandler(() => import("#exceptions/handler"));
  */
 server.use([
   () => import("@adonisjs/cors/cors_middleware"),
-  () => import('@adonisjs/static/static_middleware'),
+  () => import("@adonisjs/static/static_middleware"),
 ]);
 
 /**

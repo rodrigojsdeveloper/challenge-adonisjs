@@ -85,6 +85,30 @@ Ao rodar `npm run dev`, o projeto irá:
 | DELETE | /classrooms/:classroomId/students/:studentId | Remover aluno da sala                     |
 | GET    | /classrooms/:classroomId/students            | Listar alunos de uma sala                 |
 
+## **Cabeçalhos Obrigatórios**
+
+Algumas rotas de salas de aula `/classrooms` exigem a identificação do professor responsável.
+
+Para isso, é necessário enviar no header da requisição:
+
+```bash
+x-teacher-id: <TEACHER_ID>
+```
+
+### **Rotas que exigem o header**
+
+- `POST /classrooms`
+
+- `PUT /classrooms/:id`
+
+- `DELETE /classrooms/:id`
+
+- `POST /classrooms/:classroomId/students/:studentId`
+
+- `DELETE /classrooms/:classroomId/students/:studentId`
+
+- `GET /classrooms/:classroomId/students`
+
 ---
 
 ## **Regras de Negócio**

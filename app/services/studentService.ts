@@ -4,7 +4,7 @@ import { NotFoundException } from "../exceptions/notFound.js";
 import { StudentProps } from "../interfaces/index.js";
 import { UnprocessableEntityException } from "#exceptions/unprocessableEntity";
 import { BaseModel } from "@adonisjs/lucid/orm";
-import { validate as uuidValidate } from 'uuid';
+import { validate as uuidValidate } from "uuid";
 
 export class StudentService {
   private validateUUID(id: string, entityName: string) {
