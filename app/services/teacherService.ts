@@ -3,12 +3,12 @@ import { BadRequestException } from "../exceptions/badRequest.js";
 import { NotFoundException } from "../exceptions/notFound.js";
 import { UnprocessableEntityException } from "../exceptions/unprocessableEntity.js";
 import { TeacherProps } from "../interfaces/index.js";
-import { isValidUUID } from "../utils/index.js";
 import { BaseModel } from "@adonisjs/lucid/orm";
+import { validate as uuidValidate } from 'uuid';
 
 export class TeacherService {
   private validateUUID(id: string, entityName: string) {
-    if (!isValidUUID(id)) {
+    if (!uuidValidate(id)) {
       throw new NotFoundException(`${entityName} not found`);
     }
   }
