@@ -8,6 +8,11 @@ export default class Student extends BaseModel {
   @column({ isPrimary: true })
   declare id: string;
 
+  @beforeCreate()
+  static assignUuid(student: Student) {
+    student.id = uuidv4();
+  }
+
   @column()
   declare name: string;
 
@@ -25,11 +30,6 @@ export default class Student extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null;
-
-  @beforeCreate()
-  public static assignUuid(student: Student) {
-    student.id = uuidv4();
-  }
 
   @manyToMany(() => Classroom, {
     pivotTable: "classroom_student",

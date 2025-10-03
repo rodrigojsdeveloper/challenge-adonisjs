@@ -9,6 +9,11 @@ export default class Classroom extends BaseModel {
   @column({ isPrimary: true })
   declare id: string;
 
+  @beforeCreate()
+  static assignUuid(classroom: Classroom) {
+    classroom.id = uuidv4();
+  }
+
   @column()
   declare roomNumber: string;
 
@@ -26,11 +31,6 @@ export default class Classroom extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null;
-
-  @beforeCreate()
-  public static assignUuid(classroom: Classroom) {
-    classroom.id = uuidv4();
-  }
 
   @belongsTo(() => Teacher, {
     foreignKey: "teacherId",

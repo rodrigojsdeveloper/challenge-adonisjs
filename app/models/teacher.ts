@@ -8,6 +8,11 @@ export default class Teacher extends BaseModel {
   @column({ isPrimary: true })
   declare id: string;
 
+  @beforeCreate()
+  static assignUuid(teacher: Teacher) {
+    teacher.id = uuidv4();
+  }
+
   @column()
   declare name: string;
 
@@ -25,11 +30,6 @@ export default class Teacher extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null;
-
-  @beforeCreate()
-  public static assignUuid(teacher: Teacher) {
-    teacher.id = uuidv4();
-  }
 
   @hasMany(() => Classroom, {
     foreignKey: "teacherId",
